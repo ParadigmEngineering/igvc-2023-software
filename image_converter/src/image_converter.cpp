@@ -45,8 +45,8 @@ class ImageConverterNode: public rclcpp::Node
 
             // fill point cloud data
             size_t z = 0;
-            for (int y = 0; y < img.rows; y++) {
-                for (int x = 0; x < img.cols; x++) {
+            for (int x = 0; x < img.rows; x++) {
+                for (int y = 0; y < img.cols; y++) {
                     auto color = img.at<cv::Vec3b>(cv::Point(x, y));
 
                     if ( color == cv::Vec3b(50, 234, 157))
