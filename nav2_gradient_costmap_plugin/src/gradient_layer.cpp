@@ -1,50 +1,12 @@
-/*********************************************************************
- *
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2008, 2013, Willow Garage, Inc.
- *  Copyright (c) 2020, Samsung R&D Institute Russia
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of Willow Garage, Inc. nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *
- * Author: Eitan Marder-Eppstein
- *         David V. Lu!!
- *         Alexey Merzlyakov
- *
- * Reference tutorial:
- * https://navigation.ros.org/tutorials/docs/writing_new_costmap2d_plugin.html
- *********************************************************************/
 #include "nav2_gradient_costmap_plugin/gradient_layer.hpp"
 
 #include "nav2_costmap_2d/costmap_math.hpp"
 #include "nav2_costmap_2d/footprint.hpp"
 #include "rclcpp/parameter_events_filter.hpp"
+
+#include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include "sensor_msgs/msg/image.hpp"
 
 using nav2_costmap_2d::LETHAL_OBSTACLE;
 using nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE;
@@ -67,12 +29,19 @@ GradientLayer::GradientLayer()
 void
 GradientLayer::onInitialize()
 {
-  auto node = node_.lock(); 
+  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "GradientLayer initializing...");
+
+  auto node = node_; //.lock(); 
   declareParameter("enabled", rclcpp::ParameterValue(true));
   node->get_parameter(name_ + "." + "enabled", enabled_);
 
   need_recalculation_ = false;
   current_ = true;
+
+  image_subscription_ = node->create_subscription<sensor_msgs::msg::Image>(
+    "/carla/ego_vehicle/bev_view/image", 10,
+    std::bind(&GradientLayer::image_callback, this, std::placeholders::_1),
+    rclcpp::SubscriptionOptions());
 }
 
 // The method is called to ask the plugin: which area of costmap it needs to update.
@@ -124,61 +93,37 @@ GradientLayer::onFootprintChanged()
     layered_costmap_->getFootprint().size());
 }
 
-// The method is called when costmap recalculation is required.
-// It updates the costmap within its window bounds.
-// Inside this method the costmap gradient is generated and is writing directly
-// to the resulting costmap master_grid without any merging with previous layers.
-void
-GradientLayer::updateCosts(
+void GradientLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+  // Convert image message to OpenCV Mat
+  processed_image_ = cv_bridge::toCvShare(msg, "bgr8")->image;
+  // Set flag to re-calculate window bounds
+  need_recalculation_ = true;
+}
+
+void GradientLayer::updateCosts(
   nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j,
   int max_i,
   int max_j)
 {
-  if (!enabled_) {
+  if (!enabled_ || processed_image_.empty()) {
     return;
   }
 
-  // master_array - is a direct pointer to the resulting master_grid.
-  // master_grid - is a resulting costmap combined from all layers.
-  // By using this pointer all layers will be overwritten!
-  // To work with costmap layer and merge it with other costmap layers,
-  // please use costmap_ pointer instead (this is pointer to current
-  // costmap layer grid) and then call one of updates methods:
-  // - updateWithAddition()
-  // - updateWithMax()
-  // - updateWithOverwrite()
-  // - updateWithTrueOverwrite()
-  // In this case using master_array pointer is equal to modifying local costmap_
-  // pointer and then calling updateWithTrueOverwrite():
-  unsigned char * master_array = master_grid.getCharMap();
-  unsigned int size_x = master_grid.getSizeInCellsX(), size_y = master_grid.getSizeInCellsY();
-
-  // {min_i, min_j} - {max_i, max_j} - are update-window coordinates.
-  // These variables are used to update the costmap only within this window
-  // avoiding the updates of whole area.
-  //
-  // Fixing window coordinates with map size if necessary.
   min_i = std::max(0, min_i);
   min_j = std::max(0, min_j);
-  max_i = std::min(static_cast<int>(size_x), max_i);
-  max_j = std::min(static_cast<int>(size_y), max_j);
+  max_i = std::min(static_cast<int>(master_grid.getSizeInCellsX()), max_i);
+  max_j = std::min(static_cast<int>(master_grid.getSizeInCellsY()), max_j);
 
-  // Simply computing one-by-one cost per each cell
-  int gradient_index;
   for (int j = min_j; j < max_j; j++) {
-    // Reset gradient_index each time when reaching the end of re-calculated window
-    // by OY axis.
-    gradient_index = 0;
     for (int i = min_i; i < max_i; i++) {
-      int index = master_grid.getIndex(i, j);
-      // setting the gradient cost
-      unsigned char cost = (LETHAL_OBSTACLE - gradient_index*GRADIENT_FACTOR)%255;
-      if (gradient_index <= GRADIENT_SIZE) {
-        gradient_index++;
+      //int index = master_grid.getIndex(i, j);
+      cv::Vec3b color = processed_image_.at<cv::Vec3b>(j, i);
+      if (color == cv::Vec3b(50, 234, 157)) {
+        master_grid.setCost(i, j, LETHAL_OBSTACLE);
       } else {
-        gradient_index = 0;
+        master_grid.setCost(i, j, 0);
       }
-      master_array[index] = cost;
     }
   }
 }

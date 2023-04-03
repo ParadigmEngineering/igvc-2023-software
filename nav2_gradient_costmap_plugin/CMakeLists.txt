@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(nav2_gradient_costmap_plugin)
 
-set(lib_name ${PROJECT_NAME}_core)
+set(lib_name ${PROJECT_NAME})
 
 # === Environment ===
 
@@ -23,7 +23,9 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
+find_package(cv_bridge REQUIRED)
 find_package(pluginlib REQUIRED)
 
 set(dep_pkgs
@@ -48,5 +50,5 @@ install(TARGETS ${lib_name}
 # file into "share" directory and sets ament indexes for it.
 # This allows the plugin to be discovered as a plugin of required type.
 pluginlib_export_plugin_description_file(nav2_costmap_2d gradient_layer.xml)
-ament_target_dependencies(${lib_name} ${dep_pkgs})
+ament_target_dependencies(${lib_name} ${dep_pkgs} sensor_msgs cv_bridge)
 ament_package()

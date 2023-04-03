@@ -1,0 +1,14 @@
+costmap_2d:
+  ros__parameters:
+    update_frequency: 5.0
+    publish_frequency: 2.0
+    global_frame: map
+    robot_base_frame: base_link
+    rolling_window: true
+    width: 10.0
+    height: 10.0
+    resolution: 0.05
+    plugins: ["gradient_layer"]
+    gradient_layer:
+      plugin: "nav2_gradient_costmap_plugin::GradientLayer"
+      # Add any other necessary parameters for the gradient layer here

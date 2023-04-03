@@ -11,6 +11,16 @@ This repository contains the software for the 2023 IGVC (Intelligent Ground Vehi
 - ROS 2 Foxy Fitzroy installed. Follow the installation guide [here](https://index.ros.org/doc/ros2/Installation/Foxy/).
 - Make sure you have `git` installed on your system. If not, you can install it using `sudo apt-get install git`.
 
+Get Nav2
+ ```bash
+mkdir -p ~/nav2_ws/src
+cd ~/nav2_ws/src
+git clone https://github.com/ros-planning/navigation2.git --branch <ros2-distro>-devel
+cd ~/nav2_ws
+rosdep install -y -r -q --from-paths src --ignore-src --rosdistro <ros2-distro>
+colcon build --symlink-install
+ ```
+
 ## Installation
 
 Follow these steps to set up the IGVC 2023 software on your machine:
