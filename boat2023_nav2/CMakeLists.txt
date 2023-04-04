@@ -37,5 +37,13 @@ install(DIRECTORY launch/
   DESTINATION share/${PROJECT_NAME}/launch
 )
 
+install(DIRECTORY params/
+  DESTINATION share/${PROJECT_NAME}/params
+)
+
+install(DIRECTORY src/
+  DESTINATION share/${PROJECT_NAME}/src
+)
+
 ament_package()
 #target_link_libraries(nav2_gradient_costmap_plugin)
