@@ -7,6 +7,8 @@ global_costmap:
       robot_radius: 0.2
       always_send_full_costmap: true
       plugins: ["nav2_costmap_2d::InflationLayer", "nav2_gradient_costmap_plugin::GradientLayer"]
+      global_frame: map
+      robot_base_frame: ego_vehicle
 
 local_costmap:
   local_costmap:
@@ -19,6 +21,8 @@ local_costmap:
       height: 4.0
       always_send_full_costmap: true
       plugins: ["nav2_costmap_2d::InflationLayer", "nav2_gradient_costmap_plugin::GradientLayer"]
+      global_frame: odom
+      robot_base_frame: ego_vehicle
 
 gradient_layer:
   ros__parameters:

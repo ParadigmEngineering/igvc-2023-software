@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<robot name="boat2023" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="ego_vehicle">
+    <visual>
+      <geometry>
+        <box size="1.14 0.735 0.475"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.4 0.2 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <xacro:macro name="wheel" params="prefix x y">
+    <link name="${prefix}_wheel">
+      <visual>
+        <geometry>
+          <cylinder radius="0.22" length="0.14"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0 0 0 1"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.22" length="0.14"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="ego_vehicle"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="${x} ${y} -0.05" rpy="1.570796 0 0"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:wheel prefix="front_left" x="0.25" y="0.55"/>
+  <xacro:wheel prefix="front_right" x="0.25" y="-0.55"/>
+  <xacro:wheel prefix="rear_left" x="-0.25" y="0.55"/>
+  <xacro:wheel prefix="rear_right" x="-0.25" y="-0.55"/>
+
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
+      <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+      <wheel_separation>0.4</wheel_separation>
+      <wheel_radius>0.05</wheel_radius>
+      <robot_base_frame>ego_vehicle</robot_base_frame>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <publish_odom>true</publish_odom>
+      <publish_wheel_joint_controller_state>true</publish_wheel_joint_controller_state>
+    </plugin>
+  </gazebo>
+
+</robot>

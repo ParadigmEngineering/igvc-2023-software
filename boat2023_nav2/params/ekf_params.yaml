@@ -8,6 +8,9 @@ ekf_localization:
     odom_frame: 'odom'
     base_link_frame: 'ego_vehicle'
     world_frame: 'odom'
+    frame_id: "odom"
+    child_frame_id: "ego_vehicle"
+
     
     imu0: 'carla/ego_vehicle/imu'
     imu0_config: [False, False, False,
