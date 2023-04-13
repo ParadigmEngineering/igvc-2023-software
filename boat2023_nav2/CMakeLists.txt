@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(nav2_common REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(nav2_bringup REQUIRED)
+find_package(pluginlib REQUIRED)
 find_package(nav2_gradient_costmap_plugin REQUIRED)
 
 if(BUILD_TESTING)
@@ -39,4 +40,3 @@ install(
 )
 
 ament_package()
-#target_link_libraries(nav2_gradient_costmap_plugin)
