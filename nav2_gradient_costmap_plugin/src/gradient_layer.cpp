@@ -95,6 +95,10 @@ GradientLayer::onFootprintChanged()
 
 void GradientLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
+  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Received image: %d x %d",
+    msg->width, msg->height);
+
+  std::lock_guard<std::mutex> lock(bev_mutex_);
   // Convert image message to OpenCV Mat
   processed_image_ = cv_bridge::toCvShare(msg, "bgr8")->image;
   // Set flag to re-calculate window bounds
@@ -106,19 +110,28 @@ void GradientLayer::updateCosts(
   int max_i,
   int max_j)
 {
+  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Updating Costs...");
+
+  std::lock_guard<std::mutex> lock(bev_mutex_);
+
   if (!enabled_ || processed_image_.empty()) {
     return;
   }
 
+  // Find the common area between the image and the costmap
+  int common_max_i = std::min(static_cast<int>(processed_image_.cols), max_i);
+  int common_max_j = std::min(static_cast<int>(processed_image_.rows), max_j);
+
   min_i = std::max(0, min_i);
   min_j = std::max(0, min_j);
-  max_i = std::min(static_cast<int>(master_grid.getSizeInCellsX()), max_i);
-  max_j = std::min(static_cast<int>(master_grid.getSizeInCellsY()), max_j);
+  common_max_i = std::min(static_cast<int>(master_grid.getSizeInCellsX()), common_max_i);
+  common_max_j = std::min(static_cast<int>(master_grid.getSizeInCellsY()), common_max_j);
 
-  for (int j = min_j; j < max_j; j++) {
-    for (int i = min_i; i < max_i; i++) {
-      //int index = master_grid.getIndex(i, j);
+  // Loop over the common area and update the costmap accordingly
+  for (int j = min_j; j < common_max_j; j++) {
+    for (int i = min_i; i < common_max_i; i++) {
       cv::Vec3b color = processed_image_.at<cv::Vec3b>(j, i);
+
       if (color == cv::Vec3b(50, 234, 157)) {
         master_grid.setCost(i, j, LETHAL_OBSTACLE);
       } else {
@@ -126,6 +139,7 @@ void GradientLayer::updateCosts(
       }
     }
   }
+  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Updated Costs!");
 }
 
 }  // namespace nav2_gradient_costmap_plugin

@@ -2,16 +2,15 @@ ekf_localization:
   ros__parameters:
     use_sim_time: True
     frequency: 30.0
-    sensor_timeout: 0.1
+    sensor_timeout: 1.0
     two_d_mode: True
+    publish_tf: True
     map_frame: map
     odom_frame: odom
-    base_link_frame: /ego_vehicle
+    base_link_frame: base_link
     world_frame: map
-    frame_id: odom
-    child_frame_id: /ego_vehicle
     
-    imu0: /ego_vehicle/imu
+    imu0: imu0
     imu0_config: [False, False, False,
                   True,  True,  True,
                   False, False, False,
@@ -25,7 +24,7 @@ ekf_localization:
     imu0_twist_rejection_threshold: 0.0
     imu0_linear_acceleration_rejection_threshold: 0.0
 
-    odom0: /ego_vehicle/gnss
+    odom0: odometry0
     odom0_config: [true,  true,  true,
                     false, false, false,
                     false, false, false,
@@ -37,8 +36,8 @@ bt_navigator:
   ros__parameters:
     use_sim_time: True
     global_frame: map
-    robot_base_frame: ego_vehicle
-    odom_topic: /odom
+    robot_base_frame: base_link
+    odom_topic: odom
     enable_groot_monitoring: True
     groot_zmq_publisher_port: 1666
     groot_zmq_server_port: 1667
@@ -144,7 +143,7 @@ local_costmap:
   local_costmap:
     ros__parameters:
       global_frame: "odom"
-      robot_base_frame: "ego_vehicle"
+      robot_base_frame: "base_link"
       update_frequency: 5.0
       publish_frequency: 2.0
       resolution: 0.05
@@ -170,7 +169,7 @@ global_costmap:
   global_costmap:
     ros__parameters:
       global_frame: "map"
-      robot_base_frame: "ego_vehicle"
+      robot_base_frame: "base_link"
       update_frequency: 1.0
       publish_frequency: 1.0
       resolution: 0.05
@@ -228,7 +227,7 @@ recoveries_server:
     wait:
       plugin: "nav2_recoveries/Wait"
     global_frame: odom
-    robot_base_frame: ego_vehicle
+    robot_base_frame: base_link
     transform_timeout: 0.1
     use_sim_time: true
     simulate_ahead_time: 2.0

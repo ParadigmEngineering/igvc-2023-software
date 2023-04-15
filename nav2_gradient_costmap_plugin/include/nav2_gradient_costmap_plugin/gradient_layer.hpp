@@ -39,6 +39,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscription_;
   void image_callback(const sensor_msgs::msg::Image::SharedPtr msg);
   cv::Mat processed_image_;
+  std::mutex bev_mutex_;
 
   double last_min_x_, last_min_y_, last_max_x_, last_max_y_;
 

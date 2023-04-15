@@ -25,7 +25,6 @@ from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('nav2_bringup')
     pkg_share = get_package_share_directory('boat2023_nav2')
 
     namespace = LaunchConfiguration('namespace')
@@ -96,13 +95,13 @@ def generate_launch_description():
             description='Path to robot urdf file'
         ),
         
-        Node(
-            package='robot_localization',
-            executable='ekf_node',
-            name='ekf_localization',
-            output='screen',
-            parameters=[configured_params],
-        ),
+        # Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_localization',
+        #     output='screen',
+        #     parameters=[configured_params],
+        # ),
 
         Node(
             package='robot_state_publisher',
@@ -110,51 +109,65 @@ def generate_launch_description():
             parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')])}]
         ),
 
-        # Node(
-        #     package='nav2_controller',
-        #     executable='controller_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            arguments=["0", "0", "0", "0", "0", "0", "odom", "base_link"],
+            output="screen",
+        ),
 
-        # Node(
-        #     package='nav2_planner',
-        #     executable='planner_server',
-        #     name='planner_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            arguments=["0", "0", "0", "0", "0", "0", "map", "odom"],
+            output="screen",
+        ),
 
-        # Node(
-        #     package='nav2_recoveries',
-        #     executable='recoveries_server',
-        #     name='recoveries_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_controller',
+            executable='controller_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings),
 
-        # Node(
-        #     package='nav2_bt_navigator',
-        #     executable='bt_navigator',
-        #     name='bt_navigator',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_planner',
+            executable='planner_server',
+            name='planner_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings),
 
-        # Node(
-        #     package='nav2_waypoint_follower',
-        #     executable='waypoint_follower',
-        #     name='waypoint_follower',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_recoveries',
+            executable='recoveries_server',
+            name='recoveries_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings),
 
-        # Node(
-        #     package='nav2_lifecycle_manager',
-        #     executable='lifecycle_manager',
-        #     name='lifecycle_manager_navigation',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': use_sim_time},
-        #                 {'autostart': autostart},
-        #                 {'node_names': lifecycle_nodes}]),
+        Node(
+            package='nav2_bt_navigator',
+            executable='bt_navigator',
+            name='bt_navigator',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings),
+
+        Node(
+            package='nav2_waypoint_follower',
+            executable='waypoint_follower',
+            name='waypoint_follower',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings),
+
+        Node(
+            package='nav2_lifecycle_manager',
+            executable='lifecycle_manager',
+            name='lifecycle_manager_navigation',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time},
+                        {'autostart': autostart},
+                        {'node_names': lifecycle_nodes}]),
     ])
