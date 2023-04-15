@@ -3,9 +3,9 @@
 <package format="3">
   <name>boat2023_nav2</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="anash@mun.ca">paradigm</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Launch boat2023 nav things for carla</description>
+  <maintainer email="anash@mun.ca">Andrew Nash</maintainer>
+  <license>Beerware v42</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -13,7 +13,7 @@
   <depend>nav2_costmap_2d</depend>
   <depend>nav2_bringup</depend>
   <depend>pluginlib</depend>
-  <depend>nav2_gradient_costmap_plugin</depend>
+  <depend>nav2_bev_costmap_plugin</depend>
 
   <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>

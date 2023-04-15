@@ -1,4 +1,4 @@
-#include "nav2_gradient_costmap_plugin/gradient_layer.hpp"
+#include "nav2_bev_costmap_plugin/bev_layer.hpp"
 
 #include "nav2_costmap_2d/costmap_math.hpp"
 #include "nav2_costmap_2d/footprint.hpp"
@@ -12,10 +12,10 @@ using nav2_costmap_2d::LETHAL_OBSTACLE;
 using nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE;
 using nav2_costmap_2d::NO_INFORMATION;
 
-namespace nav2_gradient_costmap_plugin
+namespace nav2_bev_costmap_plugin
 {
 
-GradientLayer::GradientLayer()
+BEVLayer::BEVLayer()
 : last_min_x_(-std::numeric_limits<float>::max()),
   last_min_y_(-std::numeric_limits<float>::max()),
   last_max_x_(std::numeric_limits<float>::max()),
@@ -27,9 +27,9 @@ GradientLayer::GradientLayer()
 // It contains ROS parameter(s) declaration and initialization
 // of need_recalculation_ variable.
 void
-GradientLayer::onInitialize()
+BEVLayer::onInitialize()
 {
-  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "GradientLayer initializing...");
+  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "BEVLayer initializing...");
 
   auto node = node_; //.lock(); 
   declareParameter("enabled", rclcpp::ParameterValue(true));
@@ -40,7 +40,7 @@ GradientLayer::onInitialize()
 
   image_subscription_ = node->create_subscription<sensor_msgs::msg::Image>(
     "/carla/ego_vehicle/bev_view/image", 10,
-    std::bind(&GradientLayer::image_callback, this, std::placeholders::_1),
+    std::bind(&BEVLayer::image_callback, this, std::placeholders::_1),
     rclcpp::SubscriptionOptions());
 }
 
@@ -48,7 +48,7 @@ GradientLayer::onInitialize()
 // Inside this method window bounds are re-calculated if need_recalculation_ is true
 // and updated independently on its value.
 void
-GradientLayer::updateBounds(
+BEVLayer::updateBounds(
   double /*robot_x*/, double /*robot_y*/, double /*robot_yaw*/, double * min_x,
   double * min_y, double * max_x, double * max_y)
 {
@@ -84,18 +84,18 @@ GradientLayer::updateBounds(
 // The method is called when footprint was changed.
 // Here it just resets need_recalculation_ variable.
 void
-GradientLayer::onFootprintChanged()
+BEVLayer::onFootprintChanged()
 {
   need_recalculation_ = true;
 
   RCLCPP_DEBUG(rclcpp::get_logger(
-      "nav2_costmap_2d"), "GradientLayer::onFootprintChanged(): num footprint points: %lu",
+      "nav2_costmap_2d"), "BEVLayer::onFootprintChanged(): num footprint points: %lu",
     layered_costmap_->getFootprint().size());
 }
 
-void GradientLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+void BEVLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
-  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Received image: %d x %d",
+  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Received image: %d x %d",
     msg->width, msg->height);
 
   std::lock_guard<std::mutex> lock(bev_mutex_);
@@ -105,12 +105,12 @@ void GradientLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
   need_recalculation_ = true;
 }
 
-void GradientLayer::updateCosts(
+void BEVLayer::updateCosts(
   nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j,
   int max_i,
   int max_j)
 {
-  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Updating Costs...");
+  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updating Costs...");
 
   std::lock_guard<std::mutex> lock(bev_mutex_);
 
@@ -139,13 +139,13 @@ void GradientLayer::updateCosts(
       }
     }
   }
-  RCLCPP_INFO(rclcpp::get_logger("nav2_gradient_costmap_plugin"), "Updated Costs!");
+  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updated Costs!");
 }
 
-}  // namespace nav2_gradient_costmap_plugin
+}  // namespace nav2_bev_costmap_plugin
 
-// This is the macro allowing a nav2_gradient_costmap_plugin::GradientLayer class
+// This is the macro allowing a nav2_bev_costmap_plugin::BEVLayer class
 // to be registered in order to be dynamically loadable of base type nav2_costmap_2d::Layer.
 // Usually places in the end of cpp-file where the loadable class written.
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(nav2_gradient_costmap_plugin::GradientLayer, nav2_costmap_2d::Layer)
+PLUGINLIB_EXPORT_CLASS(nav2_bev_costmap_plugin::BEVLayer, nav2_costmap_2d::Layer)

@@ -21,7 +21,7 @@ find_package(nav2_common REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(nav2_bringup REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(nav2_gradient_costmap_plugin REQUIRED)
+find_package(nav2_bev_costmap_plugin REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(nav2_gradient_costmap_plugin)
+project(nav2_bev_costmap_plugin)
 
 set(lib_name ${PROJECT_NAME})
 
@@ -36,7 +36,7 @@ set(dep_pkgs
 # === Build ===
 
 add_library(${lib_name} SHARED
-            src/gradient_layer.cpp)
+            src/bev_layer.cpp)
 include_directories(include)
 
 # === Installation ===
@@ -46,9 +46,9 @@ install(TARGETS ${lib_name}
 
 # === Ament work ===
 
-# pluginlib_export_plugin_description_file() installs gradient_layer.xml
+# pluginlib_export_plugin_description_file() installs plugin.xml
 # file into "share" directory and sets ament indexes for it.
 # This allows the plugin to be discovered as a plugin of required type.
-pluginlib_export_plugin_description_file(nav2_costmap_2d gradient_layer.xml)
+pluginlib_export_plugin_description_file(nav2_costmap_2d plugin.xml)
 ament_target_dependencies(${lib_name} ${dep_pkgs} sensor_msgs cv_bridge)
 ament_package()

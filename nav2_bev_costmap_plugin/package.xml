@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>nav2_gradient_costmap_plugin</name>
+  <name>nav2_bev_costmap_plugin</name>
   <version>1.0.0</version>
-  <description>Run-time plugin for Costmap2D gradient later</description>
-  <maintainer email="alexey.merzlyakov@samsung.com">Alexey Merzlyakov</maintainer>
-  <license>BSD-3-Clause</license>
+  <description>Run-time plugin for Costmap2D BEV layers</description>
+  <maintainer email="anash@mun.ca">Andrew Nash</maintainer>
+  <license>Beerware v42</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -17,7 +17,7 @@
   <depend>rclcpp</depend>
 
   <export>
-    <costmap_2d plugin="${prefix}/gradient_layer.xml" />
+    <costmap_2d plugin="${prefix}/plugin.xml" />
     <build_type>ament_cmake</build_type>
   </export>
 </package>
