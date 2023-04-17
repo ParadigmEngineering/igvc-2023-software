@@ -17,6 +17,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(Python3 COMPONENTS Interpreter)
 find_package(nav2_common REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(nav2_bringup REQUIRED)
@@ -37,6 +38,12 @@ endif()
 install(
   DIRECTORY src launch params
   DESTINATION share/${PROJECT_NAME}
+)
+
+# Install Python scripts as executables
+install(PROGRAMS
+  src/carla_republisher.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
