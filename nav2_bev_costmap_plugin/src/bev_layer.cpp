@@ -95,9 +95,6 @@ BEVLayer::onFootprintChanged()
 
 void BEVLayer::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
-  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Received image: %d x %d",
-    msg->width, msg->height);
-
   std::lock_guard<std::mutex> lock(bev_mutex_);
   // Convert image message to OpenCV Mat
   processed_image_ = cv_bridge::toCvShare(msg, "bgr8")->image;
@@ -132,9 +129,19 @@ void BEVLayer::updateCosts(
     for (int i = min_i; i < common_max_i; i++) {
       cv::Vec3b color = processed_image_.at<cv::Vec3b>(j, i);
 
-      if (color == cv::Vec3b(50, 234, 157)) {
+      //50, 234, 157
+      if (color == cv::Vec3b(30, 170, 250)) {
+        //RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "OBSTCALE AT i: %d, j: %d", i, j);
+        // obstcale
         master_grid.setCost(i, j, LETHAL_OBSTACLE);
+      } else if (color == cv::Vec3b(81, 0, 81)) {
+        // driveable area
+        master_grid.setCost(i, j, 0);
+      } else if (color == cv::Vec3b(70, 70, 70)) {
+        // vehicle
+        master_grid.setCost(i, j, 0);
       } else {
+        RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Unkown Color at i: %d, j: %d is: %d, %d, %d", i, j, color[0], color[1], color[2]);
         master_grid.setCost(i, j, 0);
       }
     }
