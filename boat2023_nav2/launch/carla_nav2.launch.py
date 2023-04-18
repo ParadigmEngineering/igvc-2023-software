@@ -112,6 +112,12 @@ def generate_launch_description():
         ),
 
         Node(
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
+        ),
+
+        Node(
             package='robot_localization',
             executable='ekf_node',
             name='ekf_localization',
@@ -119,51 +125,57 @@ def generate_launch_description():
             parameters=[configured_params],
         ),
 
-        # Node(
-        #     package='nav2_controller',
-        #     executable='controller_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_controller',
+            executable='controller_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings
+        ),
 
-        # Node(
-        #     package='nav2_planner',
-        #     executable='planner_server',
-        #     name='planner_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_planner',
+            executable='planner_server',
+            name='planner_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings
+        ), 
 
-        # Node(
-        #     package='nav2_recoveries',
-        #     executable='recoveries_server',
-        #     name='recoveries_server',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_recoveries',
+            executable='recoveries_server',
+            name='recoveries_server',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings
+        ),
 
-        # Node(
-        #     package='nav2_bt_navigator',
-        #     executable='bt_navigator',
-        #     name='bt_navigator',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_bt_navigator',
+            executable='bt_navigator',
+            name='bt_navigator',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings
+        ),
 
-        # Node(
-        #     package='nav2_waypoint_follower',
-        #     executable='waypoint_follower',
-        #     name='waypoint_follower',
-        #     output='screen',
-        #     parameters=[configured_params],
-        #     remappings=remappings),
+        Node(
+            package='nav2_waypoint_follower',
+            executable='waypoint_follower',
+            name='waypoint_follower',
+            output='screen',
+            parameters=[configured_params],
+            remappings=remappings
+        ),
 
-        # Node(
-        #     package='nav2_lifecycle_manager',
-        #     executable='lifecycle_manager',
-        #     name='lifecycle_manager_navigation',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': use_sim_time},
-        #                 {'autostart': autostart},
-        #                 {'node_names': lifecycle_nodes}]),
+        Node(
+            package='nav2_lifecycle_manager',
+            executable='lifecycle_manager',
+            name='lifecycle_manager_navigation',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time},
+                        {'autostart': autostart},
+                        {'node_names': lifecycle_nodes}]
+        ),
     ])

@@ -148,6 +148,10 @@ local_costmap:
       publish_frequency: 2.0
       resolution: 0.05
       robot_radius: 0.2
+      width: 10
+      height: 10
+      transform_tolerance: 1.0
+      rolling_window: True
       always_send_full_costmap: true
       plugins: ["bev_layer", "inflation_layer"]
       bev_layer:
@@ -174,6 +178,10 @@ global_costmap:
       publish_frequency: 1.0
       resolution: 0.05
       robot_radius: 0.2
+      width: 20
+      height: 20
+      transform_tolerance: 1.0
+      rolling_window: True
       always_send_full_costmap: true
       plugins: ["bev_layer", "inflation_layer"]
       bev_layer:

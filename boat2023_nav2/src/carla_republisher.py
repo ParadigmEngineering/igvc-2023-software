@@ -24,7 +24,10 @@ class CARLARepublisher(Node):
         self.odom_publisher = self.create_publisher(Odometry, '/odometry', 10)
 
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.initial_pose = None
+        self.initial_pose = Pose()
+        self.initial_pose.position.x = -33.4
+        self.initial_pose.position.y = 47.4
+        self.initial_pose.position.z = 0.0
 
     def imu_callback(self, msg: Odometry):
         # Republish the IMU data
@@ -47,7 +50,7 @@ class CARLARepublisher(Node):
         if self.initial_pose is None:
             self.initial_pose = msg.pose.pose
 
-        # Subtract initial position from the current position
+       # Subtract initial position from the current position
         msg.pose.pose.position.x -= self.initial_pose.position.x
         msg.pose.pose.position.y -= self.initial_pose.position.y
         msg.pose.pose.position.z -= self.initial_pose.position.z
