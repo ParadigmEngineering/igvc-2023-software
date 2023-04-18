@@ -107,7 +107,7 @@ void BEVLayer::updateCosts(
   int max_i,
   int max_j)
 {
-  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updating Costs...");
+  //RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updating Costs...");
 
   std::lock_guard<std::mutex> lock(bev_mutex_);
 
@@ -141,12 +141,12 @@ void BEVLayer::updateCosts(
         // vehicle
         master_grid.setCost(i, j, 0);
       } else {
-        RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Unkown Color at i: %d, j: %d is: %d, %d, %d", i, j, color[0], color[1], color[2]);
+        //RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Unkown Color at i: %d, j: %d is: %d, %d, %d", i, j, color[0], color[1], color[2]);
         master_grid.setCost(i, j, 0);
       }
     }
   }
-  RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updated Costs!");
+  //RCLCPP_INFO(rclcpp::get_logger("nav2_bev_costmap_plugin"), "Updated Costs!");
 }
 
 }  // namespace nav2_bev_costmap_plugin
