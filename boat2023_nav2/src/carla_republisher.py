@@ -9,6 +9,7 @@ class CARLARepublisher(Node):
 
     def __init__(self):
         super().__init__('republisher')
+        
         self.imu_subscription = self.create_subscription(
             Imu,
             '/carla/ego_vehicle/imu',
@@ -55,6 +56,10 @@ class CARLARepublisher(Node):
         msg.pose.pose.position.y -= self.initial_pose.position.y
         msg.pose.pose.position.z -= self.initial_pose.position.z
 
+        # Publish the odometry message
+        msg.header.frame_id = 'odom'
+        self.odom_publisher.publish(msg)
+
         # Broadcast the transform
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
@@ -65,10 +70,6 @@ class CARLARepublisher(Node):
         t.transform.translation.z = msg.pose.pose.position.z
         t.transform.rotation = msg.pose.pose.orientation
         self.tf_broadcaster.sendTransform(t)
-
-        # Publish the odometry message
-        msg.header.frame_id = 'odom'
-        self.odom_publisher.publish(msg)
 
 
 def main(args=None):

@@ -18,7 +18,7 @@ using namespace std::chrono_literals;
 class ImageConverterNode: public rclcpp::Node
 {
     public:
-        ImageConverterNode() : Node("image_converter")
+        ImageConverterNode() : Node("img_to_pcl")
         {
             // advertise topic
             pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("bev_pcl", 10);
@@ -49,7 +49,7 @@ class ImageConverterNode: public rclcpp::Node
                 for (int y = 0; y < img.cols; y++) {
                     auto color = img.at<cv::Vec3b>(cv::Point(x, y));
 
-                    if ( color == cv::Vec3b(50, 234, 157))
+                    if ( color == cv::Vec3b(30, 170, 250))
                     {
                         z = 1;
                     }
@@ -72,12 +72,24 @@ class ImageConverterNode: public rclcpp::Node
                 }
             }
 
-            // Convert point cloud to ROS message and publish
+            // // Convert point cloud to ROS message and publish
+            // sensor_msgs::msg::PointCloud2 msg_out;
+            // pcl::toROSMsg(*point_cloud, msg_out);
+            // msg_out.header.frame_id = "ego_vehicle/bev_view";
+            // msg_out.header.stamp = msg->header.stamp;
+            // pointcloud_publisher_->publish(msg_out);
+            
+            // Convert point cloud to ROS message
             sensor_msgs::msg::PointCloud2 msg_out;
             pcl::toROSMsg(*point_cloud, msg_out);
-            msg_out.header.frame_id = "ego_vehicle/bev_view";
+
+            // Set the frame_id of the point cloud to base_link
+            msg_out.header.frame_id = "base_link";
             msg_out.header.stamp = msg->header.stamp;
+
+            // Publish point cloud
             pointcloud_publisher_->publish(msg_out);
+
         }
 
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscription_;

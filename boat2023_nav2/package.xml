@@ -14,6 +14,7 @@
   <depend>nav2_bringup</depend>
   <depend>pluginlib</depend>
   <depend>nav2_bev_costmap_plugin</depend>
+  <depend>image_converter</depend>
 
   <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>

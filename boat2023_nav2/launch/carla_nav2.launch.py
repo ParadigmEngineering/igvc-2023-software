@@ -103,6 +103,16 @@ def generate_launch_description():
             arguments=[republisher_path],
             output='screen',
             name='carla_republisher',
+            parameters=[{"use_sim_time": use_sim_time}],
+        ),
+
+        # Republish BEV Image as PCL
+        Node(
+            package='img_to_pcl',
+            executable='img_to_pcl',
+            name='img_to_pcl_node',
+            output='screen',
+            parameters=[{"use_sim_time": use_sim_time}],
         ),
 
         Node(
