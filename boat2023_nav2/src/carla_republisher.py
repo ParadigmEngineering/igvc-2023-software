@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 from tf2_ros import TransformBroadcaster
+from sensor_msgs.msg import Imu, NavSatFix
 from geometry_msgs.msg import TransformStamped, Pose
 
 class CARLARepublisher(Node):
@@ -23,6 +23,13 @@ class CARLARepublisher(Node):
             self.odom_callback,
             10)
         self.odom_publisher = self.create_publisher(Odometry, '/odometry', 10)
+
+        self.gnss_subscription = self.create_subscription(
+            NavSatFix,
+            '/carla/ego_vehicle/gnss',
+            self.gnss_callback,
+            10)
+        self.gnss_publisher = self.create_publisher(NavSatFix, '/gnss', 10)
 
         self.tf_broadcaster = TransformBroadcaster(self)
         self.initial_pose = Pose()
@@ -70,6 +77,24 @@ class CARLARepublisher(Node):
         t.transform.translation.z = msg.pose.pose.position.z
         t.transform.rotation = msg.pose.pose.orientation
         self.tf_broadcaster.sendTransform(t)
+
+    def gnss_callback(self, msg: NavSatFix):
+        msg.header.frame_id = 'gnss_link'
+        self.gnss_publisher.publish(msg)
+
+        # Broadcast the GNSS transform
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'base_link'
+        t.child_frame_id = 'gnss_link'
+
+        # Set the transform values based on your URDF file
+        t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = 0.0, 0.0, 0.0
+        t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = 0.0, 0.0, 0.0, 1.0
+
+        self.tf_broadcaster.sendTransform(t)
+
+
 
 
 def main(args=None):

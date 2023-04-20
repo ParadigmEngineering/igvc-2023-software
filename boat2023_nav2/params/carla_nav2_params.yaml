@@ -31,6 +31,18 @@ ekf_localization:
                     false, false, true,
                     false, false, false]
 
+    # GNSS configuration
+    gnss0: /gnss
+    gnss0_config: [true,  true,  false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false]
+    gnss0_nodelay: False
+    gnss0_differential: False
+    gnss0_relative: False
+    gnss0_queue_size: 10
+    gnss0_pose_rejection_threshold: 0.0
 
 bt_navigator:
   ros__parameters:
@@ -176,7 +188,7 @@ local_costmap:
           topic: /bev_pcl
           marking: true
           clearing: true
-          obstacle_range: 3.0
+          obstacle_range: 15.0
           min_obstacle_height: 0.0
           max_obstacle_height: 2.0
           expected_update_rate: 0.0
@@ -187,14 +199,14 @@ local_costmap:
           clear_after_reading: true
           max_z: 7.0
           min_z: 0.1
-          vertical_fov_angle: 0.8745
-          horizontal_fov_angle: 1.048
+          vertical_fov_angle: 0.0
+          horizontal_fov_angle: 0.0
           decay_acceleration: 15.0
           model_type: 0
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.33
 
   local_costmap_client:
     ros__parameters:
@@ -242,7 +254,7 @@ global_costmap:
           topic: /bev_pcl
           marking: true
           clearing: true
-          obstacle_range: 3.0
+          obstacle_range: 15.0
           min_obstacle_height: 0.0
           max_obstacle_height: 2.0
           expected_update_rate: 0.0
@@ -253,14 +265,14 @@ global_costmap:
           clear_after_reading: true
           max_z: 7.0
           min_z: 0.1
-          vertical_fov_angle: 0.8745
-          horizontal_fov_angle: 1.048
+          vertical_fov_angle: 0.0
+          horizontal_fov_angle: 0.0
           decay_acceleration: 15.0
           model_type: 0
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.33
 
   global_costmap_client:
     ros__parameters:
