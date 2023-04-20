@@ -1,0 +1,7 @@
+<class_libraries>
+  <library path="nav2_bev_costmap_plugin">
+    <class name="nav2_bev_costmap_plugin/BEVLayer" type="nav2_bev_costmap_plugin::BEVLayer" base_class_type="nav2_costmap_2d::Layer">
+      <description>This is an example plugin which puts repeating costs BEV gradients to costmap</description>
+    </class>
+  </library>
+</class_libraries>
