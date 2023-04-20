@@ -33,20 +33,25 @@ Follow these steps to set up the IGVC 2023 software on your machine:
 
 2. Installing PCL ROS Package
 
-Before building the project, make sure you have the `ros-$ROS_DISTRO-pcl-ros` package installed. Replace `$ROS_DISTRO` with your ROS distribution (e.g., melodic, noetic, foxy, etc.). 
+Before building the project, make sure you have the `ros-$ROS_DISTRO-pcl-ros` package installed. Replace `$ROS_DISTRO` with our current ROS distribution (e.g., melodic, noetic, foxy, etc.). 
 
 ```bash
 sudo apt-get update
 sudo apt-get install ros-$ROS_DISTRO-pcl-ros
 sudo apt-get install ros-$ROS_DISTRO-pcl-conversions
+sudo apt install ros-$ROS_DISTRO-spatio-temporal-voxel-layer
+sudo apt-get install libjemalloc-dev
+
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
+
+source /opt/ros/foxy/setup.bash
+source install/setup.bash
 ```
 
-3. Install
+3. Install & Build
 
 ```bash
 cd ~/igvc-2023-software
 rosdep install --from-paths src --ignore-src -r -y
-colcon build
+colcon build --symlink-install
 ```
-
-

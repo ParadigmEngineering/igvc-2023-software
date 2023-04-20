@@ -39,59 +39,49 @@ class ImageConverterNode: public rclcpp::Node
 
             // Create empty 3D point cloud with dimensions of image
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-            point_cloud->width = img.cols;
-            point_cloud->height = img.rows;
-            point_cloud->is_dense = false;
+            // point_cloud->width = img.cols;
+            // point_cloud->height = img.rows;
+            // point_cloud->is_dense = false;
 
-            // fill point cloud data
-            size_t z = 0;
+            // Fill point cloud data
             for (int x = 0; x < img.rows; x++) {
                 for (int y = 0; y < img.cols; y++) {
-                    auto color = img.at<cv::Vec3b>(cv::Point(x, y));
-
-                    if ( color == cv::Vec3b(30, 170, 250))
-                    {
-                        z = 1;
-                    }
-                    else
-                    {
-                        z = 0;
-                    }
-
                     pcl::PointXYZRGB point;
 
-                    point.z = z;
-                    point.x = x;
-                    point.y = y;
+                    point.z = 0.0;
+                    point.x = (y - img.cols / 2.0) * DISTANCE_PER_PIXEL;
+                    point.y = (x - img.rows / 2.0) * DISTANCE_PER_PIXEL;
 
-                    point.r = img.at<cv::Vec3b>(x, y)[2];
-                    point.g = img.at<cv::Vec3b>(x, y)[1];
-                    point.b = img.at<cv::Vec3b>(x, y)[0];
+                    auto color = img.at<cv::Vec3b>(cv::Point(x, y));
 
-                    point_cloud->points.push_back(point);
+                    point.r = color[2];
+                    point.g = color[1];
+                    point.b = color[0];
+
+                    // Check if the pixel color matches the target color
+                    if (color[0] == 30 && color[1] == 170 && color[2] == 250)
+                    {
+                        point.z = 1;
+                        point_cloud->points.push_back(point);
+                    }
+                    else if (color[0] == 0 && color[1] == 0 && color[2] == 0)
+                    {
+                        point.z = 1;
+                        point_cloud->points.push_back(point);
+                    }
                 }
             }
 
-            // // Convert point cloud to ROS message and publish
-            // sensor_msgs::msg::PointCloud2 msg_out;
-            // pcl::toROSMsg(*point_cloud, msg_out);
-            // msg_out.header.frame_id = "ego_vehicle/bev_view";
-            // msg_out.header.stamp = msg->header.stamp;
-            // pointcloud_publisher_->publish(msg_out);
-            
-            // Convert point cloud to ROS message
+
+            // Convert point cloud to ROS message and publish
             sensor_msgs::msg::PointCloud2 msg_out;
             pcl::toROSMsg(*point_cloud, msg_out);
-
-            // Set the frame_id of the point cloud to base_link
             msg_out.header.frame_id = "base_link";
             msg_out.header.stamp = msg->header.stamp;
-
-            // Publish point cloud
             pointcloud_publisher_->publish(msg_out);
-
         }
 
+        const double DISTANCE_PER_PIXEL = 0.1;
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscription_;
         rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_publisher_;
 };

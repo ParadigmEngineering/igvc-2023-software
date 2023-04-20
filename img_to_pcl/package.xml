@@ -3,9 +3,10 @@
 <package format="3">
   <name>img_to_pcl</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Convert BEV Images to Point Clouds</description>
   <maintainer email="thomasporter@todo.todo">thomasporter</maintainer>
-  <license>TODO: License declaration</license>
+  <maintainer email="anash@mun.ca">Andrew Nash</maintainer>
+  <license>Beerware v42</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
