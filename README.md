@@ -40,6 +40,7 @@ sudo apt-get update
 sudo apt-get install ros-$ROS_DISTRO-pcl-ros
 sudo apt-get install ros-$ROS_DISTRO-pcl-conversions
 sudo apt install ros-$ROS_DISTRO-spatio-temporal-voxel-layer
+sudo apt-get install ros-$ROS_DISTRO-robot-localization
 sudo apt-get install libjemalloc-dev
 
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
