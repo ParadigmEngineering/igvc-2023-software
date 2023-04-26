@@ -56,3 +56,9 @@ cd ~/igvc-2023-software
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
 ```
+
+4. Launch
+
+```bash
+ros2 launch boat2023_nav2 carla_nav2.launch.py
+```
