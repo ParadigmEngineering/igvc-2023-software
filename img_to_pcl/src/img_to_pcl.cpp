@@ -37,8 +37,8 @@ class ImageConverterNode : public rclcpp::Node
         cv::Mat img = cv_bridge::toCvShare(msg, "bgr8")->image;
 
         // Create an unorganized 3D point cloud
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(
-            new pcl::PointCloud<pcl::PointXYZRGB>);
+        // pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZI>);
 
         // Fill point cloud data
         for (int x = 0; x < img.rows; ++x) 
@@ -51,15 +51,16 @@ class ImageConverterNode : public rclcpp::Node
                 if ((color[0] == 30 && color[1] == 170 && color[2] == 250) ||
                     (color[0] == 0 && color[1] == 0 && color[2] == 0))
                 {
-                    pcl::PointXYZRGB point;
+                    pcl::PointXYZI point;
 
                     point.z = 1.0;
                     point.x = (x - img.rows / 2.0) * DISTANCE_PER_PIXEL;
                     point.y = (y - img.cols / 2.0) * DISTANCE_PER_PIXEL;
 
-                    point.r = color[2];
-                    point.g = color[1];
-                    point.b = color[0];
+                    // point.r = color[2];
+                    // point.g = color[1];
+                    // point.b = color[0];
+                    point.intensity = 1.0f;
 
                     point_cloud->points.push_back(point);
                 }

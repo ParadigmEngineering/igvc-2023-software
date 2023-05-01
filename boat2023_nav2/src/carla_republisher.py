@@ -48,7 +48,7 @@ class CARLARepublisher(Node):
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'imu_link'
         
-        # Set the transform values based on your URDF file
+        # TODO: Set the transform values based on the URDF file
         t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = 0.0, 0.0, 0.0
         t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = 0.0, 0.0, 0.0, 1.0
 
@@ -88,7 +88,7 @@ class CARLARepublisher(Node):
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'gnss_link'
 
-        # Set the transform values based on your URDF file
+        # TODO: Set the transform values based on the URDF file
         t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = 0.0, 0.0, 0.0
         t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = 0.0, 0.0, 0.0, 1.0
 

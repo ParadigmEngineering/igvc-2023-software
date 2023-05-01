@@ -127,6 +127,21 @@ def generate_launch_description():
             name='joint_state_publisher',
         ),
 
+        # Node(
+        #     package='scanmatcher',
+        #     executable='scanmatcher_node',
+        #     parameters=[configured_params],
+        #     remappings=[('/input_cloud', '/bev_pcl')],
+        #     output='screen'
+        # ),
+
+        # Node(
+        #     package='graph_based_slam',
+        #     executable='graph_based_slam_node',
+        #     parameters=[configured_params],
+        #     output='screen'
+        # ),
+
         Node(
             package='robot_localization',
             executable='ekf_node',

@@ -14,7 +14,11 @@
   <depend>nav2_bringup</depend>
   <depend>pluginlib</depend>
   <depend>nav2_bev_costmap_plugin</depend>
-  <depend>image_converter</depend>
+  <depend>img_to_pcl</depend>
+  <depend>rclcpp</depend>
+  <depend>scanmatcher</depend>
+  <depend>graph_based_slam</depend>
+  <depend>lidarslam_msgs</depend>
 
   <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
