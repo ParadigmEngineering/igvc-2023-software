@@ -1,4 +1,5 @@
 from setuptools import setup
+from glob import glob
 
 package_name = 'para_ai'
 
@@ -10,16 +11,20 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
+        ('share/' + package_name + '/config', glob('config/*.yaml')),
+        ('share/' + package_name + f'/{package_name}/', glob(f'{package_name}/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='paradigm',
     maintainer_email='anash@mun.ca',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Run Paradigm AI Model',
+    license='Beerware v42',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'para_ai = para_ai.bev_inference_node:main'
         ],
     },
 )
