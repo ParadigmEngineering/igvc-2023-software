@@ -7,12 +7,11 @@ void setup() {
 }
 
 void loop() {
-  // digitalWrite(LED_BUILTIN, HIGH);
-  // delay(5000);
-  // digitalWrite(LED_BUILTIN, LOW);
-  // delay(5000);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(5000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(3000);
 
-  Serial.println("Current State:");
   Serial.println(current_state);
 
   // Serial.println("Next State:");
