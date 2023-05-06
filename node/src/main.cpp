@@ -1,19 +1,22 @@
 #include <Arduino.h>
 #include "fsm.h"
+#include "led.h"
 
-void setup() {
+void setup()
+{
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(5000);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(3000);
+  // AUTONOMOUS
+  fsm_get_next_state(0, false);
 
-  Serial.println(current_state);
+  // MANUAL
+  // fsm_get_next_state(1, false);
 
-  // Serial.println("Next State:");
-  // Serial.println(next_state);
+  // STANDBY
+  // fsm_get_next_state(2, false);
+
+  flash_leds();
 }
