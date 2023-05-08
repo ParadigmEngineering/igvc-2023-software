@@ -5,7 +5,7 @@
  *          
  *   Based on control messages received with this protocol, the bot will establish a heartbeat with the
  *   control desktop, the motors will actuate or the bot will change its control state.
-*/
+ */
 
 #ifndef TWAI_H
 #define TWAI_H

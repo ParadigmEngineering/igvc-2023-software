@@ -5,7 +5,7 @@
  *          
  *   Interface for actuating motor controls, i.e. PWM Duty Cycle 50% means the motors will spin at half of max speed.
  *   Makes use of the ledc library, actuating PWM through a led control intensity peripheral.
-*/
+ */
 
 #ifndef PWM_H
 #define PWM_H
