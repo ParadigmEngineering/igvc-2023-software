@@ -44,19 +44,19 @@ class BEVInferenceNode(Node):
     def init_subscribers(self):
         self.image_buffer = {}
         self.image_subscribers = {}
-        camera_names = ['f', 'fl', 'fr', 'b', 'br', 'bl']
+        camera_names = ['f', 'fl', 'fr', 'b', 'bl', 'br']
 
         for camera_name in camera_names:
             self.image_subscribers[camera_name] = self.create_subscription(
                 Image,
-                f'carla/ego_vehicle/cam_{camera_name}/image',
+                f'para_ai/cam_{camera_name}/image',
                 self.image_callback,
                 10,
                 callback_group=rclpy.callback_groups.ReentrantCallbackGroup(),
             )
 
     def init_publisher(self):
-        self.publisher = self.create_publisher(Image, '/bev_prediction', 10)
+        self.publisher = self.create_publisher(Image, 'para_ai/bev_prediction', 10)
 
     def image_callback(self, msg):
         camera_name = msg.header.frame_id
@@ -78,7 +78,6 @@ class BEVInferenceNode(Node):
 
                 # Convert the array to an image message
                 output_image = self.bridge.cv2_to_imgmsg(confidence_array, encoding="mono8")
-
                 self.publisher.publish(output_image)
 
     def prepare_batch(self):
