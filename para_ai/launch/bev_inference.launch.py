@@ -95,6 +95,7 @@ def generate_launch_description():
             parameters=[
                 {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/cross_view_transformers/logs/igvc_test/0524_213706/checkpoints/model-v1.ckpt'},
                 {'calibration_file': calibration_file_path},
+                {'threshold': 0.3},
             ],
         ),
     ])

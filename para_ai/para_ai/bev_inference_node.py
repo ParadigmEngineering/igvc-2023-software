@@ -2,22 +2,27 @@ import cv2
 import rclpy
 import torch
 import numpy as np
+import torchvision.transforms as transforms
 
 from rclpy.node import Node
 from functools import partial
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from cross_view_transformer.common import load_backbone
+from cross_view_transformer.visualizations.common import BaseViz
 
 
 class BEVInferenceNode(Node):
+    batch = None
     camera_names = ['f', 'fl', 'fr', 'b', 'bl', 'br']
+    transform = transforms.Compose([transforms.ToTensor()])
 
     def __init__(self):
         super().__init__('bev_inference_node')
 
         self.model_path = self.declare_parameter('model_path').value
         self.calibration_file = self.declare_parameter('calibration_file').value
+        self.threshold = self.declare_parameter('threshold').value
 
         self.target_fps = 30  # Set your desired FPS
         self.timer_period = 1.0 / self.target_fps
@@ -35,6 +40,8 @@ class BEVInferenceNode(Node):
         self.network.to(self.device)
         self.network.eval()
         self.get_logger().info(f'Using device: {self.device}')
+
+        self.viz = BaseViz()
 
     def init_bridge(self):
         self.bridge = CvBridge()
@@ -62,45 +69,42 @@ class BEVInferenceNode(Node):
 
     def image_callback(self, camera_name, msg):
         self.image_buffer[camera_name] = self.bridge.imgmsg_to_cv2(msg)
+        self.prepare_batch()
 
     def inference(self):
-        batch = self.prepare_batch()
-
-        if batch is None:
+        if self.batch is None:
             return
 
         with torch.no_grad():
-            batch = {k: v.to(self.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
-            pred = self.network(batch)
+            curr_batch = {k: v.to(self.device) if isinstance(v, torch.Tensor) else v for k, v in self.batch.items()}
+            pred = self.network(curr_batch)
+
+            # For debug 6 camera view:
+            # curr_batch['bev'] = pred['bev']
+            # visualization = np.vstack(self.viz.visualize(batch=curr_batch, pred=pred))
+
+            pred = pred['bev'][0].sigmoid()
+            pred = pred.cpu().numpy().transpose(1, 2, 0)
+            pred = (pred > self.threshold).astype(np.float32)
             
-            # Convert tensor to NumPy array and normalize to the range [0, 1]
-            confidence_array = pred['center'].squeeze(0).squeeze(0).cpu().numpy()
-            confidence_array = (confidence_array - confidence_array.min()) / (confidence_array.max() - confidence_array.min())
-
-            # Convert the array to an 8-bit unsigned integer in the range [0, 255]
-            confidence_array = (confidence_array * 255).astype(np.uint8)
-
             # Convert the array to an image message
-            output_image = self.bridge.cv2_to_imgmsg(confidence_array, encoding="mono8")
+            output_image = self.bridge.cv2_to_imgmsg(pred)
             self.publisher.publish(output_image)
 
 
     def prepare_batch(self):
         if len(self.image_buffer) < 6:
-            return None
+            return
 
         images = torch.empty(size=(6, 3, 224, 480))
         for i, camera_name in enumerate(self.camera_names):
-            images[i] = torch.from_numpy(cv2.cvtColor(self.image_buffer[camera_name], cv2.COLOR_BGR2RGB)).permute(2, 0, 1)
+            images[i] = self.transform(self.image_buffer[camera_name])
 
-        batch = {
+        self.batch = {
             'extrinsics': self.extrinsics,
             'intrinsics': self.intrinsics,
             'image': images.unsqueeze(0),
         }
-
-        return batch
-
 
 def main(args=None):
     rclpy.init(args=args)
