@@ -10,7 +10,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory('para_ai')
     resize_node_path = os.path.join(pkg_share, 'para_ai', 'resize_node.py')
     bev_node_path = os.path.join(pkg_share, 'para_ai', 'bev_inference_node.py')
-    calibration_file_path = os.path.join(pkg_share, 'config', 'camera_calibration.yaml')
+    calibration_file_path = os.path.join(pkg_share, 'config', 'camera_calibration.npz')
 
     return LaunchDescription([
         Node(

@@ -1,15 +1,12 @@
+import cv2
 import rclpy
-from rclpy.node import Node
-from functools import partial
-
 import torch
 import numpy as np
-import cv2
-import yaml
 
-from sensor_msgs.msg import Image
-
+from rclpy.node import Node
+from functools import partial
 from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
 from cross_view_transformer.common import load_backbone
 
 
@@ -37,16 +34,15 @@ class BEVInferenceNode(Node):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.network.to(self.device)
         self.network.eval()
+        self.get_logger().info(f'Using device: {self.device}')
 
     def init_bridge(self):
         self.bridge = CvBridge()
 
     def init_calibration(self):
-        with open(self.calibration_file, 'r') as f:
-            calibration_data = yaml.safe_load(f)
-
-        self.extrinsics = torch.tensor(calibration_data['extrinsics']).view(1, 6, 4, 4)
-        self.intrinsics = torch.tensor(calibration_data['intrinsics']).view(1, 6, 3, 3)
+        with np.load(self.calibration_file, allow_pickle=True) as data:
+            self.extrinsics = torch.from_numpy(data['aux'][()]['extrinsics'].astype('float32')).unsqueeze(0)
+            self.intrinsics = torch.from_numpy(data['aux'][()]['intrinsics'].astype('float32')).unsqueeze(0)
 
     def init_subscribers(self):
         self.image_buffer = {}
