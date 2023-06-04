@@ -28,7 +28,7 @@ class JetsonGStreamer(Node):
     def timer_callback(self):
         ret, cv_img = self.video.read()
         if not ret:
-            self.get_logger().warning('No frame received')
+            #self.get_logger().warning('No frame received')
             return
 
         cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)

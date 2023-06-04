@@ -18,7 +18,7 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # RPi Back Camera
+        # # RPi Back Camera
         Node(
             package='para_ai',
             executable=FindExecutable(name='python3'),
@@ -66,10 +66,26 @@ def generate_launch_description():
             namespace='',
             executable=FindExecutable(name='python3'),
             arguments=[bev_node_path],
-            name='bev_inference_node',
+            name='bev_inference_obstcale_node',
             output='screen',
             parameters=[
-                {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/model.ckpt'},
+                {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/obstcale-v3.ckpt'},
+                {'output_topic': 'para_ai/bev_obstcale_pred'},               
+                {'calibration_file': calibration_file_path},
+                {'threshold': 0.5},
+            ],
+        ),
+
+        Node(
+            package='para_ai',
+            namespace='',
+            executable=FindExecutable(name='python3'),
+            arguments=[bev_node_path],
+            name='bev_inference_driveable_node',
+            output='screen',
+            parameters=[
+                {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/driveable-v4.ckpt'},
+                {'output_topic': 'para_ai/bev_drive_pred'},
                 {'calibration_file': calibration_file_path},
                 {'threshold': 0.5},
             ],

@@ -1,6 +1,7 @@
 import rclpy
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 
 from rclpy.node import Node
@@ -24,6 +25,7 @@ class BEVInferenceNode(Node):
         self.model_path = self.declare_parameter('model_path').value
         self.calibration_file = self.declare_parameter('calibration_file').value
         self.threshold = self.declare_parameter('threshold').value
+        self.output_topic = self.declare_parameter('output_topic').value
 
         self.target_fps = 30  # Set desired FPS
         self.timer_period = 1.0 / self.target_fps
@@ -41,7 +43,6 @@ class BEVInferenceNode(Node):
         self.network.to(self.device)
         self.network.eval()
         self.get_logger().info(f'Using device: {self.device}')
-        # self.viz = BaseViz()
 
     def init_bridge(self):
         self.bridge = CvBridge()
@@ -73,7 +74,7 @@ class BEVInferenceNode(Node):
             )
 
     def init_publisher(self):
-        self.publisher = self.create_publisher(Image, 'para_ai/bev_prediction', 10)
+        self.publisher = self.create_publisher(Image, self.output_topic, 10)
 
     def image_callback(self, camera_name, msg):
         cv_image = self.bridge.imgmsg_to_cv2(msg)
@@ -88,15 +89,36 @@ class BEVInferenceNode(Node):
             pred = self.network(self.batch)
             pred_bev = pred['bev'][0]
 
-            # For debug 6 camera view:
-            # curr_batch['bev'] = pred['bev']
-            # visualization = np.vstack(self.viz.visualize(batch=curr_batch, pred=pred))
+            # # For debug 6 camera view:
+            # # self.viz = BaseViz()
+            # # curr_batch['bev'] = pred['bev']
+            # # visualization = np.vstack(self.viz.visualize(batch=curr_batch, pred=pred))
 
-            # Transfer pred to CPU and apply sigmoid, and thresholding, also convert to numpy
-            occupancy_grid = (torch.sigmoid(pred_bev).cpu().numpy() > self.threshold).astype(np.float32)
+            # # Transfer pred to CPU and apply sigmoid, and thresholding, also convert to numpy
+            # occupancy_grid = (torch.sigmoid(pred_bev).cpu().numpy() > self.threshold).astype(np.float32)
 
-            # Transpose and convert the array to an image message
-            output_image = self.bridge.cv2_to_imgmsg(occupancy_grid.transpose(1, 2, 0))
+            # # Transpose and convert the array to an image message
+            # output_image = self.bridge.cv2_to_imgmsg(occupancy_grid.transpose(1, 2, 0))
+            # self.publisher.publish(output_image)
+
+            # Transfer pred to CPU and apply sigmoid, also convert to numpy
+            pred_bev_numpy = torch.sigmoid(pred_bev).cpu().numpy()
+
+            # If pred_bev_numpy is 3D and the channels dimension is 1, remove it
+            if pred_bev_numpy.ndim == 3 and pred_bev_numpy.shape[0] == 1:
+                pred_bev_numpy = np.squeeze(pred_bev_numpy, axis=0)
+
+            # Convert probabilities to a colormap, use reversed colormap
+            heatmap = plt.cm.jet_r(pred_bev_numpy)  # output shape is (height, width, colors)
+
+            # Slice to convert from RGBA to RGB
+            heatmap_rgb = heatmap[..., :3]  # slice to take the first three channels (RGB)
+
+            # Normalize to [0, 255] and convert to uint8
+            heatmap_rgb = (heatmap_rgb * 255).astype(np.uint8)
+
+            # Convert the array to an image message
+            output_image = self.bridge.cv2_to_imgmsg(heatmap_rgb, encoding='bgr8')
             self.publisher.publish(output_image)
 
 def main(args=None):
