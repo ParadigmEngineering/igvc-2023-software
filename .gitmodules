@@ -3,4 +3,4 @@
 	url = https://github.com/tonynajjar/keyboard_teleop
 [submodule "joystick_ros2"]
 	path = joystick_ros2
-	url = https://github.com/FurqanHabibi/joystick_ros2.git
+	url = https://github.com/FurqanHabibi/joystick_ros2
