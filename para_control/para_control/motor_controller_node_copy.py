@@ -36,20 +36,24 @@ class MotorController(Node):
 
     def listener_callback(self, msg):
         # self.logger.info('Getting a twist!')
-        left_motor = msg.linear.x
-        right_motor = msg.linear.y
+        linear_x = msg.linear.x
+        angular_z = msg.angular.z
+        # right_motor = msg.linear.y
+
+        left_motor = (linear_x - angular_z)/5
+        right_motor = (linear_x + angular_z)/5    
         
-        standby_request = msg.angular.x
-        manual_request = msg.angular.y
-        autonomous_request = msg.angular.z
+        # standby_request = msg.angular.x
+        # manual_request = msg.angular.y
+        # autonomous_request = msg.angular.z
 
         # 1.0 BASE Diameter
         # 0.2032 WHEEL RADIUS
         # WHEEL_BASE = 0.5  # replace with your robot's wheel base
         # WHEEL_RADIUS = 0.1  # replace with your robot's wheel radius
 
-        self.logger.info(f'Right motor value {left_motor}')
-        self.logger.info(f'Left motor value {right_motor}')
+        self.logger.info(f'Right motor value {right_motor}')
+        self.logger.info(f'Left motor value {left_motor}')
         # self.logger.info(f'Standby request value {standby_request}')
         # self.logger.info(f'Manual request value {manual_request}')
         # self.logger.info(f'Autonomous request value {autonomous_request}')
@@ -59,7 +63,7 @@ class MotorController(Node):
         # left_velocity = (2 * linear_x - angular_z )#* WHEEL_BASE) / (2 * WHEEL_RADIUS)
         
         self.set_motor_speeds(left_motor, right_motor)
-        self.request_state_change(int(standby_request), int(manual_request), int(autonomous_request))
+        # self.request_state_change(int(standby_request), int(manual_request), int(autonomous_request))
         # self.send_heartbeat()
     
     def round_to_nearest_increment(self, value, increment):
