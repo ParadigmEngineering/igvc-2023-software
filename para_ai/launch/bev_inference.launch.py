@@ -18,7 +18,7 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # # RPi Back Camera
+        # Jetson Cameras
         Node(
             package='para_ai',
             executable=FindExecutable(name='python3'),

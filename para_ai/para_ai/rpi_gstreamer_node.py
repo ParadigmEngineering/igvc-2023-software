@@ -35,7 +35,7 @@ class RPIGStreamer(Node):
         resized_image = cv2.resize(cv_img, (480, 224))
         
         # Convert the resized OpenCV image to an image message
-        img_msg = self.bridge.cv2_to_imgmsg(resized_image, encoding='bgr8')
+        img_msg = self.bridge.cv2_to_imgmsg(resized_image, encoding='rgb8')
 
         # Set the frame_id and stamp
         img_msg.header.frame_id = 'base_link_cam_b'
