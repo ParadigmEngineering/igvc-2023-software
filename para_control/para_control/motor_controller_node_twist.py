@@ -1,27 +1,28 @@
 import rclpy
 from rclpy.node import Node
-from can_interface import CanInterface
+# from can_interface import CanInterface
 from geometry_msgs.msg import Twist
 import logging
+import os
 
 class MotorController(Node):
     def __init__(self):
         super().__init__('motor_controller')
-        self.can_interface = CanInterface()
+        # self.can_interface = CanInterface()
 
-        self.left_id = self.can_interface.get_id_left_motor_control_fwd()
-        self.left_data = self.can_interface.get_data_min_payload()
-        self.prev_left_id = self.can_interface.get_id_left_motor_control_fwd()
-        self.prev_left_data = self.can_interface.get_data_min_payload()
+        self.left_id = self.get_id_left_motor_control_fwd()
+        self.left_data = self.get_data_min_payload()
+        self.prev_left_id = self.get_id_left_motor_control_fwd()
+        self.prev_left_data = self.get_data_min_payload()
 
-        self.right_id = self.can_interface.get_id_right_motor_control_fwd()
-        self.right_data = self.can_interface.get_data_min_payload()
-        self.prev_right_id = self.can_interface.get_id_right_motor_control_fwd()
-        self.prev_right_data = self.can_interface.get_data_min_payload()
+        self.right_id = self.get_id_right_motor_control_fwd()
+        self.right_data = self.get_data_min_payload()
+        self.prev_right_id = self.get_id_right_motor_control_fwd()
+        self.prev_right_data = self.get_data_min_payload()
 
-        self.state_id = self.can_interface.get_id_right_motor_control_fwd()
+        self.state_id = self.get_id_right_motor_control_fwd()
         # self.state_data = self.can_interface.get_data_min_payload()
-        self.prev_state_id = self.can_interface.get_id_right_motor_control_fwd()
+        self.prev_state_id = self.get_id_right_motor_control_fwd()
         # self.prev_state_data = self.can_interface.get_data_min_payload()
 
         self.subscription = self.create_subscription(
@@ -52,8 +53,8 @@ class MotorController(Node):
         # WHEEL_BASE = 0.5  # replace with your robot's wheel base
         # WHEEL_RADIUS = 0.1  # replace with your robot's wheel radius
 
-        self.logger.info(f'Right motor value {right_motor}')
-        self.logger.info(f'Left motor value {left_motor}')
+        # self.logger.info(f'Right motor value {right_motor}')
+        # self.logger.info(f'Left motor value {left_motor}')
         # self.logger.info(f'Standby request value {standby_request}')
         # self.logger.info(f'Manual request value {manual_request}')
         # self.logger.info(f'Autonomous request value {autonomous_request}')
@@ -89,18 +90,18 @@ class MotorController(Node):
     def set_motor_speeds(self, left, right):
 
         if left > 0.0:
-            self.left_id = self.can_interface.get_id_left_motor_control_fwd()
-            hex_byte_array = self.can_interface.int_to_hex_byte_array(int(self.lerp(abs(left))))
+            self.left_id = self.get_id_left_motor_control_fwd()
+            hex_byte_array = self.int_to_hex_byte_array(int(self.lerp(abs(left))))
             self.left_data = list(" ".join(f"{i:02x}" for i in hex_byte_array).replace(" ", ""))
         elif left < 0.0:
-            self.left_id = self.can_interface.get_id_left_motor_control_rev()
-            hex_byte_array = self.can_interface.int_to_hex_byte_array(int(self.lerp(abs(left))))
+            self.left_id = self.get_id_left_motor_control_rev()
+            hex_byte_array = self.int_to_hex_byte_array(int(self.lerp(abs(left))))
             self.left_data = list(" ".join(f"{i:02x}" for i in hex_byte_array).replace(" ", ""))
         elif left == 0.0:
             self.left_id = self.prev_left_id
-            self.left_data = self.can_interface.get_data_min_payload()
+            self.left_data = self.get_data_min_payload()
         
-        self.logger.info(f'LEFT ID: {self.left_id}')
+        # self.logger.info(f'LEFT ID: {self.left_id}')
 
         left_id_changed = self.left_id != self.prev_left_id
         left_data_changed = self.left_data != self.prev_left_data
@@ -111,23 +112,23 @@ class MotorController(Node):
                 hex_str = str(self.left_data[i]) + str(self.left_data[i+1])  # Join the pair of items
                 hex_val = int(hex_str, 16)  # Convert the string to an integer using base 16
                 hex_list.append(hex_val)
-            self.logger.info(f'ID: {self.left_id}')
-            self.logger.info(f'DATA: {hex_list}')
-            self.can_interface.send_can_message(self.can_interface.bus, self.left_id, hex_list)
+            # self.logger.info(f'ID: {self.left_id}')
+            # self.logger.info(f'DATA: {hex_list}')
+            self.send_can_message(self.left_id, hex_list)
 
         if right > 0.0:
-            self.right_id = self.can_interface.get_id_right_motor_control_fwd()
-            hex_byte_array = self.can_interface.int_to_hex_byte_array(int(self.lerp(abs(right))))
+            self.right_id = self.get_id_right_motor_control_fwd()
+            hex_byte_array = self.int_to_hex_byte_array(int(self.lerp(abs(right))))
             self.right_data = list(" ".join(f"{i:02x}" for i in hex_byte_array).replace(" ", ""))
         elif right < 0.0:
-            self.right_id = self.can_interface.get_id_right_motor_control_rev()
-            hex_byte_array = self.can_interface.int_to_hex_byte_array(int(self.lerp(abs(right))))
+            self.right_id = self.get_id_right_motor_control_rev()
+            hex_byte_array = self.int_to_hex_byte_array(int(self.lerp(abs(right))))
             self.right_data = list(" ".join(f"{i:02x}" for i in hex_byte_array).replace(" ", ""))
         elif right == 0.0:
             self.right_id = self.prev_right_id
-            self.right_data = self.can_interface.get_data_min_payload()
+            self.right_data = self.get_data_min_payload()
         
-        self.logger.info(f'RIGHT ID: {self.right_id}')
+        # self.logger.info(f'RIGHT ID: {self.right_id}')
 
         right_id_changed = self.right_id != self.prev_right_id
         right_data_changed = self.right_data != self.prev_right_data
@@ -138,9 +139,9 @@ class MotorController(Node):
                 hex_str = str(self.right_data[i]) + str(self.right_data[i+1])  # Join the pair of items
                 hex_val = int(hex_str, 16)  # Convert the string to an integer using base 16
                 hex_list.append(hex_val)
-            self.logger.info(f'ID: {self.right_id}')
-            self.logger.info(f'DATA: {hex_list}')
-            self.can_interface.send_can_message(self.can_interface.bus, self.right_id, hex_list)
+            # self.logger.info(f'ID: {self.right_id}')
+            # self.logger.info(f'DATA: {hex_list}')
+            self.send_can_message(self.right_id, hex_list)
 
         self.prev_left_id = self.left_id
         self.prev_left_data = self.left_data
@@ -152,24 +153,116 @@ class MotorController(Node):
 
     def request_state_change(self, stdby_req, man_req, auto_req):
         if auto_req == 1:
-            self.state_id = self.can_interface.get_id_autonomous_control_request()
+            self.state_id = self.get_id_autonomous_control_request()
         elif man_req == 1:
-            self.state_id = self.can_interface.get_id_manual_control_request()
+            self.state_id = self.get_id_manual_control_request()
         elif stdby_req == 1:
-            self.state_id = self.can_interface.get_id_standby_request()
+            self.state_id = self.get_id_standby_request()
         
         if self.state_id != self.prev_state_id:
-            self.can_interface.send_can_message(self.can_interface.bus, self.state_id, self.can_interface.get_data_min_payload())
+            self.send_can_message(self.state_id, self.get_data_min_payload())
 
         self.prev_state_id = self.state_id
         pass
 
     def send_heartbeat(self):
-        self.left_id = self.can_interface.get_id_heartbeat()
-        self.left_data = self.can_interface.get_data_min_payload()
-        self.logger.info(f'Logging ID: {self.left_id}, Data: {self.left_data}')
-        self.can_interface.send_can_message(self.can_interface.bus, self.left_id, self.left_data)
+        self.left_id = self.get_id_heartbeat()
+        self.left_data = self.get_data_min_payload()
+        # self.logger.info(f'Logging ID: {self.left_id}, Data: {self.left_data}')
+        self.send_can_message(self.left_id, self.left_data)
         pass
+
+    def send_can_message(self, can_id, data):
+        # message = can.Message(arbitration_id=can_id, data=data)
+        # print(bus)
+        # print(can_id)
+        # print(data)
+        # try:
+        #     bus.send(message)
+        #     print(f"Sent CAN message: ID={hex(can_id)}, Data={bytes(data).hex()}")
+        # except can.CanError:
+        #     print("Error sending CAN message")
+        # Hack to fix on comp flight computer 
+        data_str = ""
+        for d in data:
+            data_str += str(hex(d))[2:]
+
+        print(data_str)
+        # self.logger.info(data_str)
+
+        if len(data_str) > 8:
+            data_str = data_str[1:]
+
+        can_id_str = str(hex(can_id))
+
+        can_id = "0" + can_id_str[2:]
+
+        cmd_str = f"cansend can0 {can_id}#{data_str}"
+        # self.logger.info(cmd_str)
+        print(cmd_str)
+
+        os.system(cmd_str)
+
+    def int_to_hex_byte_array(self, int_value):
+        hex_byte_array = int_value.to_bytes(8, byteorder='big')
+        return hex_byte_array
+
+    # def int_to_bytearray(self, num):
+    #     return struct.pack('i', num)
+    
+    def get_data_payload(self, freq):
+        return self.int_to_hex_byte_array(int(freq))
+
+    def get_id_standby_request(self):
+        return 0x011
+
+    def get_id_autonomous_control_request(self):
+        return 0x012
+
+    def get_id_manual_control_request(self):
+        return 0x013
+
+    def get_id_left_motor_control_fwd(self):
+        return 0x021
+
+    def get_id_left_motor_control_rev(self):
+        return 0x022
+
+    def get_id_right_motor_control_fwd(self):
+        return 0x041
+
+    def get_id_right_motor_control_rev(self):
+        return 0x042
+    
+    def get_id_heartbeat(self):
+        return 0x001
+
+    def get_data_min_payload(self):
+        return [0x00, 0x00, 0x00, 0x00]
+    
+    def get_data_eigth_payload(self):
+        return [0x00, 0x00, 0x00, 0x0F]
+
+    def get_data_quarter_payload(self):
+        return [0x00, 0x00, 0x00, 0xFF]
+    
+    def get_data_three_eigth_payload(self):
+        return [0x00, 0x00, 0x0F, 0xFF]
+
+    def get_data_half_payload(self):
+        return [0x00, 0x00, 0xFF, 0xFF]
+    
+    def get_data_five_eigth_payload(self):
+        return [0x00, 0x0F, 0xFF, 0xFF]
+
+    def get_data_three_quarter_payload(self):
+        return [0x00,0xFF, 0xFF, 0xFF]
+    
+    def get_data_seven_eigth_payload(self):
+        return [0x0F, 0xFF, 0xFF, 0xFF]
+    
+    def get_data_full_payload(self):
+        return [0xAF, 0xFF, 0xFF, 0xFF]
 
 def main(args=None):
     rclpy.init(args=args)

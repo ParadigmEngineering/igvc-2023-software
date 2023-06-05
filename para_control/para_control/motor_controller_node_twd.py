@@ -37,20 +37,24 @@ class MotorController(Node):
 
     def listener_callback(self, msg):
         # self.logger.info('Getting a twist!')
-        left_motor = msg.linear.x
-        right_motor = msg.linear.y
+        linear_x = msg.linear.x
+        angular_z = msg.angular.z
+        # right_motor = msg.linear.y
+
+        left_motor = (linear_x - angular_z)/5
+        right_motor = (linear_x + angular_z)/5    
         
-        standby_request = msg.angular.x
-        manual_request = msg.angular.y
-        autonomous_request = msg.angular.z
+        # standby_request = msg.angular.x
+        # manual_request = msg.angular.y
+        # autonomous_request = msg.angular.z
 
         # 1.0 BASE Diameter
         # 0.2032 WHEEL RADIUS
         # WHEEL_BASE = 0.5  # replace with your robot's wheel base
         # WHEEL_RADIUS = 0.1  # replace with your robot's wheel radius
 
-        # self.logger.info(f'Right motor value {left_motor}')
-        # self.logger.info(f'Left motor value {right_motor}')
+        # self.logger.info(f'Right motor value {right_motor}')
+        # self.logger.info(f'Left motor value {left_motor}')
         # self.logger.info(f'Standby request value {standby_request}')
         # self.logger.info(f'Manual request value {manual_request}')
         # self.logger.info(f'Autonomous request value {autonomous_request}')
@@ -60,7 +64,7 @@ class MotorController(Node):
         # left_velocity = (2 * linear_x - angular_z )#* WHEEL_BASE) / (2 * WHEEL_RADIUS)
         
         self.set_motor_speeds(left_motor, right_motor)
-        self.request_state_change(int(standby_request), int(manual_request), int(autonomous_request))
+        # self.request_state_change(int(standby_request), int(manual_request), int(autonomous_request))
         # self.send_heartbeat()
     
     def round_to_nearest_increment(self, value, increment):
@@ -136,7 +140,7 @@ class MotorController(Node):
                 hex_val = int(hex_str, 16)  # Convert the string to an integer using base 16
                 hex_list.append(hex_val)
             # self.logger.info(f'ID: {self.right_id}')
-            # self.logger.info(f'DATA: {hex_list}')
+            self.logger.info(f'DATA: {hex_list}')
             self.send_can_message(self.right_id, hex_list)
 
         self.prev_left_id = self.left_id
@@ -167,6 +171,7 @@ class MotorController(Node):
         # self.logger.info(f'Logging ID: {self.left_id}, Data: {self.left_data}')
         self.send_can_message(self.left_id, self.left_data)
         pass
+
     def send_can_message(self, can_id, data):
         # message = can.Message(arbitration_id=can_id, data=data)
         # print(bus)
@@ -180,12 +185,20 @@ class MotorController(Node):
         # Hack to fix on comp flight computer 
         data_str = ""
         for d in data:
-            data_str += str(d)
+            data_str += str(hex(d))[2:]
 
         print(data_str)
+        self.logger.info(data_str)
+
+        if len(data_str) > 8:
+            data_str = data_str[1:]
+
+        can_id_str = str(hex(can_id))
+
+        can_id = "0" + can_id_str[2:]
 
         cmd_str = f"cansend can0 {can_id}#{data_str}"
-        self.logger.info("cmd_str")
+        self.logger.info(cmd_str)
         print(cmd_str)
 
         os.system(cmd_str)
@@ -225,31 +238,31 @@ class MotorController(Node):
         return 0x001
 
     def get_data_min_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+        return [0x00, 0x00, 0x00, 0x00]
     
     def get_data_eigth_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F]
+        return [0x00, 0x00, 0x00, 0x0F]
 
     def get_data_quarter_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF]
+        return [0x00, 0x00, 0x00, 0xFF]
     
     def get_data_three_eigth_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xFF]
+        return [0x00, 0x00, 0x0F, 0xFF]
 
     def get_data_half_payload(self):
-        return [0x00, 0x00,0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF]
+        return [0x00, 0x00, 0xFF, 0xFF]
     
     def get_data_five_eigth_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xFF, 0xFF]
+        return [0x00, 0x0F, 0xFF, 0xFF]
 
     def get_data_three_quarter_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x00,0xFF, 0xFF, 0xFF]
+        return [0x00,0xFF, 0xFF, 0xFF]
     
     def get_data_seven_eigth_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0x0F, 0xFF, 0xFF, 0xFF]
+        return [0x0F, 0xFF, 0xFF, 0xFF]
     
     def get_data_full_payload(self):
-        return [0x00, 0x00, 0x00, 0x00, 0xAF, 0xFF, 0xFF, 0xFF]
+        return [0xAF, 0xFF, 0xFF, 0xFF]
 
 def main(args=None):
     rclpy.init(args=args)
