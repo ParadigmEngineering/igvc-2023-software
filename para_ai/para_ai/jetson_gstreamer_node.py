@@ -39,7 +39,7 @@ class JetsonGStreamer(Node):
 
         images = [cv_img[:half_height, :half_width], # top-left image
                   cv_img[:half_height, half_width:], # top-right image
-                  cv_img[half_height:, :half_width], # bottom-left image
+                  # cv_img[half_height:, :half_width], # bottom-left image
                   cv_img[half_height:, half_width:]  # bottom-right image
                   ]
 

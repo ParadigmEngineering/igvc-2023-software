@@ -30,8 +30,8 @@ def generate_launch_description():
                 {'server_port': '5002'},
                 {'output_topic_0': 'para_ai/cam_bl/image'},
                 {'output_topic_1': 'para_ai/cam_fl/image'},
-                {'output_topic_2': 'para_ai/cam_fr/image'},
-                {'output_topic_3': 'para_ai/cam_br/image'},
+                # {'output_topic_2': 'para_ai/cam_fr/image'},
+                {'output_topic_2': 'para_ai/cam_br/image'},
             ],
         ),
 
@@ -59,6 +59,19 @@ def generate_launch_description():
             parameters=[
                 {'input_topic': 'zed2/zed_node/left/image_rect_color'},
                 {'output_topic': 'para_ai/cam_f/image'},
+            ],
+        ),
+
+        # Back-up USB camera
+        Node(
+            package='para_ai',
+            executable=FindExecutable(name='python3'),
+            arguments=[resize_node_path],
+            name='resize_node',
+            output='screen',
+            parameters=[
+                {'input_topic': '/image_raw'},
+                {'output_topic': 'para_ai/cam_fr/image'},
             ],
         ),
 
@@ -90,7 +103,7 @@ def generate_launch_description():
                 {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/driveable-v4.ckpt'},
                 {'output_topic': 'para_ai/bev_drive_pred'},
                 {'calibration_file': calibration_file_path},
-                {'threshold': 0.4},
+                {'threshold': 0.3},
             ],
         ),
     ])
