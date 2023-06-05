@@ -26,6 +26,7 @@ from nav2_common.launch import RewrittenYaml
 def generate_launch_description():
     # Get the launch directory
     pkg_share = get_package_share_directory('boat2023_nav2')
+    pkg_ai = get_package_share_directory('para_ai')
 
     namespace = LaunchConfiguration('namespace')
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -34,6 +35,7 @@ def generate_launch_description():
     default_bt_xml_filename = LaunchConfiguration('default_bt_xml_filename')
     model_path = os.path.join(pkg_share, 'src', 'description', 'boat2023.urdf')
     republisher_path = os.path.join(pkg_share, 'src', 'carla_republisher.py')
+    pred_to_pcl_node_path = os.path.join(pkg_ai, 'para_ai', 'pred_to_pcl.py')
 
     lifecycle_nodes = ['controller_server',
                        'planner_server',
@@ -71,7 +73,7 @@ def generate_launch_description():
             description='Top-level namespace'),
 
         DeclareLaunchArgument(
-            'use_sim_time', default_value='true',
+            'use_sim_time', default_value='false',
             description='Use simulation clock if true'),
 
         DeclareLaunchArgument(
@@ -80,7 +82,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'params_file',
-            default_value=os.path.join(pkg_share, 'params', 'carla_nav2_params.yaml'),
+            default_value=os.path.join(pkg_share, 'params', 'nav2_params.yaml'),
             description='Full path to the ROS2 parameters file to use'),
 
         DeclareLaunchArgument(
@@ -96,26 +98,46 @@ def generate_launch_description():
             description='Path to robot urdf file'
         ),
 
-        # # Republish BEV Image as PCL
+        # Republish BEV Image as PCL
+        Node(
+            package='img_to_pcl',
+            executable='img_to_pcl',
+            name='img_to_pcl_node',
+            output='screen',
+            parameters=[{"image_sub_topic": "para_ai/bev_obstcale_pred"},
+                        {"image_pub_topic": "para_ai/bev_obstcale_pcl"},
+                        {"obstcale_color": 255}],
+        ),
+
+        # Republish BEV Image as PCL
+        Node(
+            package='img_to_pcl',
+            executable='img_to_pcl',
+            name='img_to_pcl_node',
+            output='screen',
+            parameters=[{"image_sub_topic": "para_ai/bev_drive_pred"},
+                        {"image_pub_topic": "para_ai/bev_drive_pcl"},
+                        {"obstcale_color": 0}],
+        ),
+
+
         # Node(
-        #     package='img_to_pcl',
-        #     executable='img_to_pcl',
-        #     name='img_to_pcl_node',
-        #     output='screen',
-        #     parameters=[{"use_sim_time": use_sim_time}],
+        #     package='tf2_ros',
+        #     executable='static_transform_publisher',
+        #     arguments=['0', '0', '0.01', '0', '0', '0', 'base_link', 'zed2_base_link']
         # ),
 
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')])}]
-        ),
+        # Node(
+        #     package='robot_state_publisher',
+        #     executable='robot_state_publisher',
+        #     parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')])}]
+        # ),
 
-        Node(
-            package='joint_state_publisher',
-            executable='joint_state_publisher',
-            name='joint_state_publisher',
-        ),
+        # Node(
+        #     package='joint_state_publisher',
+        #     executable='joint_state_publisher',
+        #     name='joint_state_publisher',
+        # ),
 
         # Node(
         #     package='robot_localization',

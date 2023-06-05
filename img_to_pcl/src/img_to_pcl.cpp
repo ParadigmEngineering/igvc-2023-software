@@ -17,24 +17,31 @@ using namespace std::chrono_literals;
 
 class ImageConverterNode : public rclcpp::Node
 {
-    public:
-    ImageConverterNode(): Node("img_to_pcl"), DISTANCE_PER_PIXEL(0.1)
+public:
+    ImageConverterNode() : Node("img_to_pcl"), DISTANCE_PER_PIXEL(0.1)
     {
+        // Fetch parameter for image topic
+        std::string image_sub_topic = this->declare_parameter<std::string>("image_sub_topic", "para_ai/bev_obstcale_pred");
+        std::string image_pub_topic = this->declare_parameter<std::string>("image_pub_topic", "para_ai/bev_obstcale_pcl");
+        obs_color = this->declare_parameter<int>("obstcale_color", 255);
+
         // Advertise topic
-        pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("bev_pcl", 10);
+        pointcloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(image_pub_topic, 10);
 
         // Subscribe to image topic
         image_subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
-            "/carla/ego_vehicle/bev_view/image", 10,
+            image_sub_topic, 10,
             std::bind(&ImageConverterNode::image_callback, this, std::placeholders::_1)
         );
     }
 
-    private:
+private:
+    int obs_color;
+
     void image_callback(const sensor_msgs::msg::Image::SharedPtr msg) const
     {
         // Convert image message to OpenCV Mat
-        cv::Mat img = cv_bridge::toCvShare(msg, "bgr8")->image;
+        cv::Mat img = cv_bridge::toCvShare(msg, "rgb8")->image;
 
         // Create an unorganized 3D point cloud
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(
@@ -48,8 +55,7 @@ class ImageConverterNode : public rclcpp::Node
                 auto color = img.at<cv::Vec3b>(cv::Point(y, x));
 
                 // Check if the pixel color matches the target color or is black
-                if ((color[0] == 30 && color[1] == 170 && color[2] == 250) ||
-                    (color[0] == 0 && color[1] == 0 && color[2] == 0))
+                if ((color[0] == obs_color && color[1] == obs_color && color[2] == obs_color))
                 {
                     pcl::PointXYZRGB point;
 
@@ -83,7 +89,8 @@ class ImageConverterNode : public rclcpp::Node
 int main(int argc, char *argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<ImageConverterNode>());
+  auto node = std::make_shared<ImageConverterNode>();
+  rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
 }

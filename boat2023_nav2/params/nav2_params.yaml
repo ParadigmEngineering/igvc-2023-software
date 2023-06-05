@@ -1,6 +1,6 @@
 ekf_localization:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     frequency: 30.0
     sensor_timeout: 1.0
     two_d_mode: True
@@ -9,44 +9,17 @@ ekf_localization:
     odom_frame: odom
     base_link_frame: base_link
     world_frame: map
-    
-    imu0: /imu
-    imu0_config: [False, False, False,
-                  True,  True,  True,
-                  False, False, False,
-                  False, False, False,
-                  False, False, False]
-    imu0_nodelay: False
-    imu0_differential: False
-    imu0_relative: False
-    imu0_queue_size: 10
-    imu0_pose_rejection_threshold: 0.0
-    imu0_twist_rejection_threshold: 0.0
-    imu0_linear_acceleration_rejection_threshold: 0.0
 
-    odom0: /odometry
+    odom0: /zed2/zed_node/odom
     odom0_config: [true,  true,  true,
                     false, false, false,
                     false, false, false,
                     false, false, true,
                     false, false, false]
 
-    # GNSS configuration
-    gnss0: /gnss
-    gnss0_config: [true,  true,  false,
-                  false, false, false,
-                  false, false, false,
-                  false, false, false,
-                  false, false, false]
-    gnss0_nodelay: False
-    gnss0_differential: False
-    gnss0_relative: False
-    gnss0_queue_size: 10
-    gnss0_pose_rejection_threshold: 0.0
-
 bt_navigator:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
     odom_topic: odom
@@ -80,11 +53,11 @@ bt_navigator:
 
 bt_navigator_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 controller_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
@@ -149,7 +122,7 @@ controller_server:
 
 controller_server_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 local_costmap:
   local_costmap:
@@ -210,10 +183,10 @@ local_costmap:
 
   local_costmap_client:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
   local_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
 
 global_costmap:
   global_costmap:
@@ -276,14 +249,14 @@ global_costmap:
 
   global_costmap_client:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
   global_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
 
 map_saver:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     save_map_timeout: 5000
     free_thresh_default: 0.25
     occupied_thresh_default: 0.65
@@ -292,17 +265,17 @@ map_saver:
 planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
-    use_sim_time: True
+    use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.5
       use_astar: false
-      allow_unknown: true
+      allow_unknown: False
 
 planner_server_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 recoveries_server:
   ros__parameters:
@@ -319,7 +292,7 @@ recoveries_server:
     global_frame: odom
     robot_base_frame: base_link
     transform_timeout: 0.1
-    use_sim_time: true
+    use_sim_time: False
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
@@ -327,4 +300,4 @@ recoveries_server:
 
 robot_state_publisher:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False

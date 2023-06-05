@@ -28,9 +28,9 @@ def generate_launch_description():
             parameters=[
                 {'server_ip': '192.168.0.132'},
                 {'server_port': '5002'},
-                {'output_topic_0': 'para_ai/cam_fl/image'},
-                {'output_topic_1': 'para_ai/cam_fr/image'},
-                {'output_topic_2': 'para_ai/cam_bl/image'},
+                {'output_topic_0': 'para_ai/cam_bl/image'},
+                {'output_topic_1': 'para_ai/cam_fl/image'},
+                {'output_topic_2': 'para_ai/cam_fr/image'},
                 {'output_topic_3': 'para_ai/cam_br/image'},
             ],
         ),
@@ -49,6 +49,7 @@ def generate_launch_description():
             ],
         ),
 
+        # Zed camera left
         Node(
             package='para_ai',
             executable=FindExecutable(name='python3'),
@@ -61,6 +62,7 @@ def generate_launch_description():
             ],
         ),
 
+        # Run obstcale model
         Node(
             package='para_ai',
             namespace='',
@@ -72,10 +74,11 @@ def generate_launch_description():
                 {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/obstcale-v3.ckpt'},
                 {'output_topic': 'para_ai/bev_obstcale_pred'},               
                 {'calibration_file': calibration_file_path},
-                {'threshold': 0.5},
+                {'threshold': 0.4},
             ],
         ),
 
+        # Run driveable model
         Node(
             package='para_ai',
             namespace='',
@@ -87,7 +90,7 @@ def generate_launch_description():
                 {'model_path': '/home/paradigm/GitHub/igvc-2023-machine-learning/prod_models/driveable-v4.ckpt'},
                 {'output_topic': 'para_ai/bev_drive_pred'},
                 {'calibration_file': calibration_file_path},
-                {'threshold': 0.5},
+                {'threshold': 0.4},
             ],
         ),
     ])

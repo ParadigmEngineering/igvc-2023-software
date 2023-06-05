@@ -47,7 +47,8 @@
   <xacro:wheel prefix="rear_left" x="-0.25" y="0.55"/>
   <xacro:wheel prefix="rear_right" x="-0.25" y="-0.55"/>
 
-  <link name="imu_link">
+<!-- 
+  <link name="zed2_base_link">
     <visual>
       <geometry>
         <box size="0.1 0.1 0.1"/>
@@ -60,13 +61,14 @@
     </inertial>
   </link>
 
-  <joint name="imu_joint" type="fixed">
+
+  <joint name="zed2_base_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="imu_link"/>
+    <child link="zed2_base_link"/>
     <origin xyz="0 0 0.01"/>
   </joint>
-  
-  <link name="zed_link">
+
+  <link name="zed2_imu_link">
     <visual>
       <geometry>
         <box size="0.1 0.1 0.1"/>
@@ -79,9 +81,9 @@
     </inertial>
   </link>
 
-  <joint name="zed_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="zed_link"/>
+  <joint name="zed2_imu_joint" type="fixed">
+    <parent link="zed2_base_link"/>
+    <child link="zed2_imu_link"/>
     <origin xyz="0 0 0.01"/>
   </joint>
 
@@ -102,6 +104,6 @@
     <parent link="base_link"/>
     <child link="gnss_link"/>
     <origin xyz="0 0 0.01"/>
-  </joint>
+  </joint> -->
 
 </robot>
